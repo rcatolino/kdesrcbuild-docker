@@ -1,0 +1,50 @@
+# See the kdesrc-buildrc-sample for explanations of what the options do, or
+# view the manpage or kdesrc-build documentation at
+# http://kdesrc-build.kde.org/documentation/
+global
+
+  qtdir /usr
+  source-dir /home/kdedev/work/source
+  build-dir /home/kdedev/work/build
+  kdedir /home/kdedev/work/install
+
+  git-repository-base kde-projects kde:
+
+  # KDE4_BUILD_TESTS kept for now, for old kde4_add_unit_test stuff to be enabled
+  cmake-options -DBUILD_TESTING=TRUE -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_LIBDIR=lib -DLIB_SUFFIX=64 -DCMAKE_BUILD_TYPE:STRING=debug -DKDE4_BUILD_TESTS=true
+  cxxflags -pipe -std=c++11 -DQT_STRICT_ITERATORS -DQURL_NO_CAST_FROM_STRING -DQT_NO_HTTP -DQT_NO_FTP -Wformat -Werror=format-security -Werror=return-type -Wno-variadic-macros -Wlogical-op -Wmissing-include-dirs
+  make-options -j4
+  #install-session-driver true
+  #stop-on-failure true
+
+  branch-group kf5-qt5
+end global
+
+# Instead of specifying modules here, the current best practice is to refer to
+# KF5 module lists maintained with kdesrc-build by the KF5 developers. As new
+# modules are added or modified, the kdesrc-build KF5 module list is altered to
+# suit, and when you update kdesrc-build you will automatically pick up the
+# needed changes.
+
+# NOTE: You MUST change the path below to include the actual path to your
+# kdesrc-build installation.
+
+#module libaccounts-glib
+#    repository https://gitlab.com/accounts-sso/libaccounts-glib.git
+#    branch master
+#end module
+#
+#module libaccounts-qt
+#    repository https://gitlab.com/accounts-sso/libaccounts-qt.git
+#    branch master
+#end module
+
+include /home/kdedev/kdesrc-build/kf5-qt5-build-include
+
+options plasma-desktop
+    # plasma-desktop requires to much ram to be built with more than one process
+    make-options -j1
+end options
+# If you wish to maintain the module list yourself that is possible, simply
+# look at the files pointed to above and use the "module-set" declarations that
+# they use, with your own changes.

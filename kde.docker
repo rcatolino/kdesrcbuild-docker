@@ -1,0 +1,76 @@
+FROM debian:testing
+MAINTAINER Raphael Catolino "raphael.catolino@gmail.com"
+
+ENV SHELL /bin/bash
+
+RUN apt-get update && apt-get install -y build-essentials
+RUN apt-get update && build-dep -y qtbase5-dev
+RUN apt-get update && apt-get install -y \
+  bzr \
+  doxygen \
+  fontforge \
+  gperf \
+  libarchive-dev \
+  libattr1-dev \
+  libboost1.55-dev \
+  libbz2-dev \
+  libegl1-mesa-dev \
+  libepoxy-dev \
+  libgcrypt20-dev \
+  libgif-dev \
+  libgstreamer-plugins-base1.0-dev \
+  libgstreamer1.0-dev \
+  libgtk-3-dev \
+  libjson-perl \
+  liblmdb-dev \
+  libnm-glib-dev \
+  libnm-util-dev \
+  libpolkit-agent-1-dev \
+  libpwquality-dev \
+  libqt5x11extras5-dev \
+  libvlc-dev \
+  libvlccore-dev \
+  libwww-perl \
+  libxapian-dev \
+  libxcb-keysyms1-dev \
+  libxcb-xkb-dev \
+  libxml-parser-perl \
+  libxml2-dev \
+  libxslt-dev \
+  modemmanager-dev \
+  network-manager-dev \
+  oxygen-icon-theme \
+  shared-mime-info \
+  xserver-xorg-dev \
+  xserver-xorg-input-synaptics-dev \
+  xsltproc \
+  && rm -rf /var/lib/apt/lists/*
+
+RUN useradd -U -m kdedev && \
+
+#RUN apt-get update && apt-get install -y sudo \
+#    && echo 'kdedev ALL=NOPASSWD: ALL' >> /etc/sudoers
+
+USER kdedev
+ENV HOME /home/kdedev
+WORKDIR /home/kdedev/
+
+# kde anongit url alias
+RUN git config --global url."git://anongit.kde.org/".insteadOf kde: && \
+    git config --global url."ssh://git@git.kde.org/".pushInsteadOf kde: && \
+    git clone kde:kdesrc-build
+
+RUN mkdir /home/kdedev/work
+ADD ./var.env ./
+ADD ./kdesrc-buildrc ./.kdesrc-buildrc
+RUN /bin/bash -c "source var.env"
+
+WORKDIR /home/kdedev/kdesrc-build/
+
+# Pull the source
+RUN ./kdesrc-build --metadata-only
+RUN ./kdesrc-build --src-only
+
+# Build the packages
+RUN ./kdesrc-build --no-src
+
