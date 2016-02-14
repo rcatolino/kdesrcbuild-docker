@@ -3,8 +3,11 @@ MAINTAINER Raphael Catolino "raphael.catolino@gmail.com"
 
 ENV SHELL /bin/bash
 
-RUN apt-get update && apt-get install -y build-essentials
-RUN apt-get update && build-dep -y qtbase5-dev
+RUN echo 'deb-src http://httpredir.debian.org/debian testing main' >> /etc/apt/sources.list
+RUN echo 'deb-src http://httpredir.debian.org/debian testing-updates main' >> /etc/apt/sources.list
+RUN echo 'deb-src http://security.debian.org testing/updates main' >> /etc/apt/sources.list
+
+RUN apt-get update && apt-get build-dep -y qtbase5-dev
 RUN apt-get update && apt-get install -y \
   bzr \
   doxygen \
@@ -12,7 +15,7 @@ RUN apt-get update && apt-get install -y \
   gperf \
   libarchive-dev \
   libattr1-dev \
-  libboost1.55-dev \
+  libboost-dev \
   libbz2-dev \
   libegl1-mesa-dev \
   libepoxy-dev \
