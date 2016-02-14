@@ -49,7 +49,7 @@ RUN apt-get update && apt-get install -y \
   xsltproc \
   && rm -rf /var/lib/apt/lists/*
 
-RUN useradd -U -m kdedev && \
+RUN useradd -U -m kdedev
 
 #RUN apt-get update && apt-get install -y sudo \
 #    && echo 'kdedev ALL=NOPASSWD: ALL' >> /etc/sudoers
