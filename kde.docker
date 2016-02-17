@@ -9,10 +9,20 @@ RUN echo 'deb-src http://security.debian.org testing/updates main' >> /etc/apt/s
 
 RUN apt-get update && apt-get build-dep -y qtbase5-dev
 RUN apt-get update && apt-get install -y \
+  autoconf \
+  automake \
   bzr \
+  cmake \
+  docbook-xml \
+  docbook-xsl \
   doxygen \
   fontforge \
+  git \
   gperf \
+  libaccounts-qt5-1 \
+  libaccounts-qt5-dev \
+  libappstreamqt-dev \
+  libappstreamqt1 \
   libarchive-dev \
   libattr1-dev \
   libboost-dev \
@@ -21,16 +31,27 @@ RUN apt-get update && apt-get install -y \
   libepoxy-dev \
   libgcrypt20-dev \
   libgif-dev \
+  libgrantlee5-dev \
   libgstreamer-plugins-base1.0-dev \
   libgstreamer1.0-dev \
   libgtk-3-dev \
   libjson-perl \
   liblmdb-dev \
+  libnm-dev \
   libnm-glib-dev \
   libnm-util-dev \
+  libpackagekitqt5-dev \
   libpolkit-agent-1-dev \
   libpwquality-dev \
+  libqt5gstreamer-dev \
+  libqt5location5 \
+  libqt5multimedia5 \
+  libqt5opengl5-dev \
+  libqt5script5 \
+  libqt5svg5-dev \
+  libqt5webkit5-dev \
   libqt5x11extras5-dev \
+  libqt5xmlpatterns5-dev \
   libvlc-dev \
   libvlccore-dev \
   libwww-perl \
@@ -43,6 +64,12 @@ RUN apt-get update && apt-get install -y \
   modemmanager-dev \
   network-manager-dev \
   oxygen-icon-theme \
+  qtbase5-private-dev \
+  qtdeclarative5-dev \
+  qtquick1-5-dev \
+  qtscript5-dev \
+  qttools5-dev \
+  qttools5-dev-tools \
   shared-mime-info \
   xserver-xorg-dev \
   xserver-xorg-input-synaptics-dev \
@@ -51,8 +78,8 @@ RUN apt-get update && apt-get install -y \
 
 RUN useradd -U -m kdedev
 
-#RUN apt-get update && apt-get install -y sudo \
-#    && echo 'kdedev ALL=NOPASSWD: ALL' >> /etc/sudoers
+RUN apt-get update && apt-get install -y sudo \
+    && echo 'kdedev ALL=NOPASSWD: ALL' >> /etc/sudoers
 
 USER kdedev
 ENV HOME /home/kdedev
@@ -66,14 +93,26 @@ RUN git config --global url."git://anongit.kde.org/".insteadOf kde: && \
 RUN mkdir /home/kdedev/work
 ADD ./var.env ./
 ADD ./kdesrc-buildrc ./.kdesrc-buildrc
-RUN /bin/bash -c "source var.env"
 
 WORKDIR /home/kdedev/kdesrc-build/
+RUN /bin/bash -c "source /home/kdedev/var.env"
+RUN echo "$QTDIR"
 
 # Pull the source
 RUN ./kdesrc-build --metadata-only
 RUN ./kdesrc-build --src-only
 
 # Build the packages
-RUN ./kdesrc-build --no-src
+#RUN ./kdesrc-build --no-src
+
+ENV KF5=/home/kdedev/work/install
+ENV QTDIR=/usr
+ENV XDG_DATA_DIRS=$KF5/share:$XDG_DATA_DIRS:/usr/share
+ENV XDG_CONFIG_DIRS=$KF5/etc/xdg:$XDG_CONFIG_DIRS:/etc/xdg
+ENV PATH=$KF5/bin:$QTDIR/bin:$PATH
+ENV QT_PLUGIN_PATH=$KF5/lib/plugins:$KF5/lib64/plugins:$KF5/lib/x86_64-linux-gnu/plugins:$QTDIR/plugins:$QT_PLUGIN_PATH
+ENV QML2_IMPORT_PATH=$KF5/lib/qml:$KF5/lib64/qml:$KF5/lib/x86_64-linux-gnu/qml:$QTDIR/qml
+ENV QML_IMPORT_PATH=$QML2_IMPORT_PATH
+ENV KDE_SESSION_VERSION=5
+ENV KDE_FULL_SESSION=true
 
