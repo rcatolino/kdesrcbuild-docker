@@ -13,6 +13,7 @@ RUN apt-get update && apt-get install -y \
   automake \
   bzr \
   cmake \
+  dbus-x11 \
   docbook-xml \
   docbook-xsl \
   doxygen \
@@ -114,6 +115,18 @@ RUN apt-get update && apt-get install -y \
   modemmanager-dev \
   network-manager-dev \
   oxygen-icon-theme \
+  qml-module-qtquick-controls-styles-breeze \
+  qml-module-qtquick-scene3d \
+  qml-module-qtquick-localstorage \
+  qml-module-qtquick-particles2 \
+  qml-module-qtquick-window2 \
+  qml-module-qtquick-xmllistmodel \
+  qml-module-qtquick2 \
+  qml-module-qtquick-controls \
+  qml-module-qtquick-dialogs \
+  qml-module-qtquick-extras \
+  qml-module-qtquick-layouts \
+  qml-module-qtquick-privatewidgets \
   qtbase5-private-dev \
   qtdeclarative5-dev \
   qtmultimedia5-dev \
@@ -147,16 +160,6 @@ ADD ./var.env ./
 ADD ./kdesrc-buildrc ./.kdesrc-buildrc
 
 WORKDIR /home/kdedev/kdesrc-build/
-RUN /bin/bash -c "source /home/kdedev/var.env"
-RUN echo "$QTDIR"
-
-# Pull the source
-RUN ./kdesrc-build --metadata-only
-RUN ./kdesrc-build --src-only
-
-# Build and install the packages.
-# This is probably going to fail as there are always a few packages failing to build on master.
-RUN ./kdesrc-build --no-src && true
 
 ENV KF5=/home/kdedev/work/install
 ENV QTDIR=/usr
@@ -168,4 +171,15 @@ ENV QML2_IMPORT_PATH=$KF5/lib/qml:$KF5/lib64/qml:$KF5/lib/x86_64-linux-gnu/qml:$
 ENV QML_IMPORT_PATH=$QML2_IMPORT_PATH
 ENV KDE_SESSION_VERSION=5
 ENV KDE_FULL_SESSION=true
+
+RUN echo "QTDIR : $QTDIR"
+
+# Pull the source
+RUN ./kdesrc-build --metadata-only
+RUN ./kdesrc-build --src-only
+
+# Build and install the packages.
+# This is probably going to fail as there are always a few packages failing to build on master.
+RUN ./kdesrc-build --no-src || true
+
 
