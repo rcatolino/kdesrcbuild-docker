@@ -29,17 +29,10 @@ end global
 # NOTE: You MUST change the path below to include the actual path to your
 # kdesrc-build installation.
 
-#module libaccounts-glib
-#    repository https://gitlab.com/accounts-sso/libaccounts-glib.git
-#    branch master
-#end module
-#
-#module libaccounts-qt
-#    repository https://gitlab.com/accounts-sso/libaccounts-qt.git
-#    branch master
-#end module
-
-include /home/kdedev/kdesrc-build/kf5-qt5-build-include
+include /home/kdedev/kdesrc-build/kf5-frameworks-build-include
+include /home/kdedev/kdesrc-build/kf5-workspace-build-include
+#include /home/kdedev/kdesrc-build/kf5-applications-build-include
+#include /home/kdedev/kdesrc-build/kf5-kdepim-build-include
 
 options plasma-desktop
     # plasma-desktop requires to much ram to be built with more than one process

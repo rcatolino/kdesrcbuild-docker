@@ -150,16 +150,17 @@ USER kdedev
 ENV HOME /home/kdedev
 WORKDIR /home/kdedev/
 
+ADD ./var.env ./
+ADD ./kdesrc-buildrc ./.kdesrc-buildrc
+
 # kde anongit url alias
 RUN git config --global url."git://anongit.kde.org/".insteadOf kde: && \
     git config --global url."ssh://git@git.kde.org/".pushInsteadOf kde: && \
     git clone kde:kdesrc-build
 
-RUN mkdir /home/kdedev/work
-ADD ./var.env ./
-ADD ./kdesrc-buildrc ./.kdesrc-buildrc
-
 WORKDIR /home/kdedev/kdesrc-build/
+
+RUN mkdir /home/kdedev/work
 
 ENV KF5=/home/kdedev/work/install
 ENV QTDIR=/usr
@@ -172,14 +173,12 @@ ENV QML_IMPORT_PATH=$QML2_IMPORT_PATH
 ENV KDE_SESSION_VERSION=5
 ENV KDE_FULL_SESSION=true
 
-RUN echo "QTDIR : $QTDIR"
-
 # Pull the source
 RUN ./kdesrc-build --metadata-only
 RUN ./kdesrc-build --src-only
 
+ARG makeopts=-j1
 # Build and install the packages.
 # This is probably going to fail as there are always a few packages failing to build on master.
-RUN ./kdesrc-build --no-src || true
-
+RUN ./kdesrc-build --make-options=${makeopts} --no-src || true
 
