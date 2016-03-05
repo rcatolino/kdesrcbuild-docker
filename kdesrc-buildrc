@@ -4,9 +4,9 @@
 global
 
   qtdir /usr
-  source-dir /home/kdedev/work/source
-  build-dir /home/kdedev/work/build
-  kdedir /home/kdedev/work/install
+  source-dir $HOME/work/source
+  build-dir $HOME/work/build
+  kdedir $HOME/work/install
 
   git-repository-base kde-projects kde:
 
@@ -29,10 +29,10 @@ end global
 # NOTE: You MUST change the path below to include the actual path to your
 # kdesrc-build installation.
 
-include /home/kdedev/kdesrc-build/kf5-frameworks-build-include
-include /home/kdedev/kdesrc-build/kf5-workspace-build-include
-#include /home/kdedev/kdesrc-build/kf5-applications-build-include
-#include /home/kdedev/kdesrc-build/kf5-kdepim-build-include
+include /home/$HOME/kdesrc-build/kf5-frameworks-build-include
+include /home/$HOME/kdesrc-build/kf5-workspace-build-include
+#include /home/$HOME/kdesrc-build/kf5-applications-build-include
+#include /home/$HOME/kdesrc-build/kf5-kdepim-build-include
 
 options plasma-desktop
     # plasma-desktop requires to much ram to be built with more than one process

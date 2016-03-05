@@ -141,28 +141,27 @@ RUN apt-get update && apt-get install -y \
   xsltproc \
   && rm -rf /var/lib/apt/lists/*
 
-RUN useradd -U -m kdedev
+RUN useradd -U -m user
+WORKDIR /home/user/
 
-RUN apt-get update && apt-get install -y sudo \
-    && echo 'kdedev ALL=NOPASSWD: ALL' >> /etc/sudoers
+ADD https://raw.githubusercontent.com/rcatolino/kdesrcbuild-docker/master/var.env ./var.env
+ADD https://raw.githubusercontent.com/rcatolino/kdesrcbuild-docker/master/kdesrc-buildrc ./.kdesrc-buildrc
+RUN chown user:user var.env
+RUN chown user:user .kdesrc-buildrc
 
-USER kdedev
-ENV HOME /home/kdedev
-WORKDIR /home/kdedev/
-
-ADD ./var.env ./
-ADD ./kdesrc-buildrc ./.kdesrc-buildrc
+USER user
+ENV HOME /home/user
 
 # kde anongit url alias
 RUN git config --global url."git://anongit.kde.org/".insteadOf kde: && \
     git config --global url."ssh://git@git.kde.org/".pushInsteadOf kde: && \
     git clone kde:kdesrc-build
 
-WORKDIR /home/kdedev/kdesrc-build/
+WORKDIR /home/user/kdesrc-build/
 
-RUN mkdir /home/kdedev/work
+RUN mkdir /home/user/work
 
-ENV KF5=/home/kdedev/work/install
+ENV KF5=/home/user/work/install
 ENV QTDIR=/usr
 ENV XDG_DATA_DIRS=$KF5/share:$XDG_DATA_DIRS:/usr/share
 ENV XDG_CONFIG_DIRS=$KF5/etc/xdg:$XDG_CONFIG_DIRS:/etc/xdg
@@ -180,4 +179,3 @@ RUN ./kdesrc-build --src-only
 # Build and install the packages.
 # This is probably going to fail as there are always a few packages failing to build on master.
 RUN ./kdesrc-build --make-options=-j8 --no-src || true
-
