@@ -4,9 +4,9 @@
 global
 
   qtdir /usr
-  source-dir user/work/source
-  build-dir user/work/build
-  kdedir user/work/install
+  source-dir /home/user/work/source
+  build-dir /home/user/work/build
+  kdedir /home/user/work/install
 
   git-repository-base kde-projects kde:
 

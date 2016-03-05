@@ -145,8 +145,8 @@ RUN useradd -U -m user
 WORKDIR /home/user/
 
 ADD https://raw.githubusercontent.com/rcatolino/kdesrcbuild-docker/master/var.env ./var.env
-ADD https://raw.githubusercontent.com/rcatolino/kdesrcbuild-docker/master/kdesrc-buildrc ./.kdesrc-buildrc
 RUN chown user:user var.env
+ADD https://raw.githubusercontent.com/rcatolino/kdesrcbuild-docker/master/kdesrc-buildrc ./.kdesrc-buildrc
 RUN chown user:user .kdesrc-buildrc
 
 USER user
