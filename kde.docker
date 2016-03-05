@@ -177,8 +177,7 @@ ENV KDE_FULL_SESSION=true
 RUN ./kdesrc-build --metadata-only
 RUN ./kdesrc-build --src-only
 
-ARG makeopts=-j1
 # Build and install the packages.
 # This is probably going to fail as there are always a few packages failing to build on master.
-RUN ./kdesrc-build --make-options=${makeopts} --no-src || true
+RUN ./kdesrc-build --make-options=-j8 --no-src || true
 
