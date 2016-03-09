@@ -187,7 +187,7 @@ USER root
 
 # Install various utilities for remote access.
 RUN apt-get update -q \
- && apt-get install -qy net-tools vim openssh-server supervisor xvfb fluxbox x11vnc \
+ && apt-get install -qy curl net-tools vim openssh-server supervisor tmux xvfb fluxbox x11vnc \
  && mkdir /var/run/sshd \
  && touch /etc/supervisord.log
 
