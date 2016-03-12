@@ -142,6 +142,7 @@ RUN apt-get update && apt-get install -y \
   && rm -rf /var/lib/apt/lists/*
 
 RUN useradd -U -m user
+RUN usermod -U user
 WORKDIR /home/user/
 
 ADD https://raw.githubusercontent.com/rcatolino/kdesrcbuild-docker/master/var.env ./var.env
@@ -187,9 +188,12 @@ USER root
 
 # Install various utilities for remote access.
 RUN apt-get update -q \
- && apt-get install -qy curl net-tools vim openssh-server supervisor tmux xvfb fluxbox x11vnc \
+ && apt-get install -qy qdbus-qt5 curl net-tools vim openssh-server supervisor tmux xvfb fluxbox x11vnc x11-xserver-utils \
  && mkdir /var/run/sshd \
  && touch /etc/supervisord.log
+
+# Disallow password logins in openssh
+RUN sed -i "s/^.PasswordAuthentication yes/PasswordAuthentication no/;s/^.ChallengeResponseAuthentication yes/ChallengeResponseAuthentication no/" /etc/ssh/sshd_config
 
 # Install Cloud9 and noVNC (without administrator privileges).
 USER user
