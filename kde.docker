@@ -225,5 +225,6 @@ RUN echo "[supervisord]" >> supervisord.conf \
  && echo "environment=DISPLAY=\":99\"" >> supervisord.conf
 
 # Expose the remote access ports and run the server.
-EXPOSE 22 8088
+# EXPOSE 22 8088
+WORKDIR /home/user/kdesrc-build/
 CMD [ "/usr/bin/supervisord", "-c", "/etc/supervisord.conf" ]
