@@ -147,6 +147,7 @@ WORKDIR /home/user/
 
 ADD https://raw.githubusercontent.com/rcatolino/kdesrcbuild-docker/master/var.env ./var.env
 RUN chown user:user var.env
+RUN echo 'source /home/user/var.env' >> .bashrc
 ADD https://raw.githubusercontent.com/rcatolino/kdesrcbuild-docker/master/kdesrc-buildrc ./.kdesrc-buildrc
 RUN chown user:user .kdesrc-buildrc
 
@@ -188,7 +189,7 @@ USER root
 
 # Install various utilities for remote access.
 RUN apt-get update -q \
- && apt-get install -qy qdbus-qt5 curl net-tools vim openssh-server supervisor tmux xvfb fluxbox x11vnc x11-xserver-utils \
+ && apt-get install -qy qdbus-qt5 curl net-tools vim openssh-server supervisor tmux xvfb x11vnc x11-xserver-utils \
  && mkdir /var/run/sshd \
  && touch /etc/supervisord.log
 
@@ -204,27 +205,9 @@ USER root
 
 # Configure Supervisor.
 WORKDIR /etc
-RUN echo "[supervisord]" >> supervisord.conf \
- && echo "nodaemon=true" >> supervisord.conf \
- && echo "[program:sshd]" >> supervisord.conf \
- && echo "command=/usr/sbin/sshd -D" >> supervisord.conf \
- && echo "[program:xvfb]" >> supervisord.conf \
- && echo "command=/usr/bin/Xvfb :99 -screen 0 1280x864x16 -ac -pn -noreset" >> supervisord.conf \
- && echo "user=user" >> supervisord.conf \
- && echo "[program:x11vnc]" >> supervisord.conf \
- && echo "command=x11vnc -shared -rfbport 5900 -display :99" >> supervisord.conf \
- && echo "user=user" >> supervisord.conf \
- && echo "autorestart=true" >> supervisord.conf \
- && echo "[program:novnc]" >> supervisord.conf \
- && echo "command=/home/user/novnc/utils/launch.sh --vnc localhost:5900 --listen 8088" >> supervisord.conf \
- && echo "user=user" >> supervisord.conf \
- && echo "[program:fluxbox]" >> supervisord.conf \
- && echo "command=fluxbox" >> supervisord.conf \
- && echo "user=user" >> supervisord.conf \
- && echo "autorestart=true" >> supervisord.conf \
- && echo "environment=DISPLAY=\":99\"" >> supervisord.conf
+ADD https://raw.githubusercontent.com/rcatolino/kdesrcbuild-docker/master/supervisord.conf supervisord.conf
+RUN chown root:root supervisord.conf
 
 # Expose the remote access ports and run the server.
-# EXPOSE 22 8088
-WORKDIR /home/user/kdesrc-build/
+EXPOSE 22 8088
 CMD [ "/usr/bin/supervisord", "-c", "/etc/supervisord.conf" ]
