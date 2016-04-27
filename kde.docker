@@ -193,7 +193,7 @@ RUN apt-get update -q \
  && touch /etc/supervisord.log
 
 # Disallow password logins in openssh
-RUN sed -i "s/^.PasswordAuthentication yes/PasswordAuthentication no/;s/^.ChallengeResponseAuthentication yes/ChallengeResponseAuthentication no/" /etc/ssh/sshd_config
+RUN sed -i "s/^.*PasswordAuthentication.*$/PasswordAuthentication no/;s/^.*ChallengeResponseAuthentication.*$/ChallengeResponseAuthentication no/" /etc/ssh/sshd_config
 
 # Install Cloud9 and noVNC (without administrator privileges).
 USER user
