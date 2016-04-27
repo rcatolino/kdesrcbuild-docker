@@ -116,7 +116,6 @@ RUN apt-get update && apt-get install -y \
   network-manager-dev \
   oxygen-icon-theme \
   qml-module-qtquick-controls-styles-breeze \
-  qml-module-qtquick-scene3d \
   qml-module-qtquick-localstorage \
   qml-module-qtquick-particles2 \
   qml-module-qtquick-window2 \
@@ -208,6 +207,15 @@ WORKDIR /etc
 ADD https://raw.githubusercontent.com/rcatolino/kdesrcbuild-docker/master/supervisord.conf supervisord.conf
 RUN chown root:root supervisord.conf
 
+USER root
+# Generate utf8 locale
+RUN apt-get update -q && apt-get install -qy locales
+RUN touch /etc/locale-gen
+RUN sed -i "s/#.*\(en_US.UTF-8 UTF-8\)/\1/" /etc/locale.gen
+RUN /usr/sbin/locale-gen
+USER user
+
 # Expose the remote access ports and run the server.
 EXPOSE 22 8088
 CMD [ "/usr/bin/supervisord", "-c", "/etc/supervisord.conf" ]
+
