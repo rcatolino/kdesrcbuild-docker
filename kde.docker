@@ -140,8 +140,27 @@ RUN apt-get update && apt-get install -y \
   xsltproc \
   && rm -rf /var/lib/apt/lists/*
 
+# Generate utf8 locale
+RUN apt-get update -q && apt-get install -qy locales
+RUN touch /etc/locale-gen
+RUN sed -i "s/#.*\(en_US.UTF-8 UTF-8\)/\1/" /etc/locale.gen
+RUN /usr/sbin/locale-gen
+
+# Install various utilities for remote access.
+RUN apt-get update -q \
+ && apt-get install -qy qdbus-qt5 curl net-tools vim openssh-server supervisor tmux xvfb x11vnc x11-xserver-utils \
+ && mkdir /var/run/sshd \
+ && touch /etc/supervisord.log
+
+# Configure Supervisor.
+ADD https://raw.githubusercontent.com/rcatolino/kdesrcbuild-docker/master/supervisord.conf /etc/supervisord.conf
+RUN chown root:root supervisord.conf
+
+# Disallow password logins in openssh
+RUN sed -i "s/^[#\s]*PasswordAuthentication[\s]*[yYnN].*$/PasswordAuthentication no/;s/^[#\s]*ChallengeResponseAuthentication[\s]*[yYnN].*$/ChallengeResponseAuthentication no/" /etc/ssh/sshd_config
+
 RUN useradd -U -m user
-RUN usermod -U user
+RUN echo 'user:' | chpasswd -e
 WORKDIR /home/user/
 
 ADD https://raw.githubusercontent.com/rcatolino/kdesrcbuild-docker/master/var.env ./var.env
@@ -153,15 +172,18 @@ RUN chown user:user .kdesrc-buildrc
 USER user
 ENV HOME /home/user
 
+# Install Cloud9 and noVNC (without administrator privileges).
+RUN curl -L https://raw.githubusercontent.com/c9/install/master/install.sh | bash
+RUN git clone https://github.com/kanaka/noVNC /home/user/novnc/
+
+
 # kde anongit url alias
 RUN git config --global url."git://anongit.kde.org/".insteadOf kde: && \
     git config --global url."ssh://git@git.kde.org/".pushInsteadOf kde: && \
     git clone kde:kdesrc-build
 
 WORKDIR /home/user/kdesrc-build/
-
 RUN mkdir /home/user/work
-
 ENV KF5=/home/user/work/install
 ENV QTDIR=/usr
 ENV XDG_DATA_DIRS=$KF5/share:$XDG_DATA_DIRS:/usr/share
@@ -181,40 +203,8 @@ RUN ./kdesrc-build --src-only
 # This is probably going to fail as there are always a few packages failing to build on master.
 RUN ./kdesrc-build --make-options=-j8 --no-src; true
 
-# INSTALL CLOUD9
-
-# Regain administrator privileges.
+WORKDIR /home/user/
 USER root
-
-# Install various utilities for remote access.
-RUN apt-get update -q \
- && apt-get install -qy qdbus-qt5 curl net-tools vim openssh-server supervisor tmux xvfb x11vnc x11-xserver-utils \
- && mkdir /var/run/sshd \
- && touch /etc/supervisord.log
-
-# Disallow password logins in openssh
-RUN sed -i "s/^.*PasswordAuthentication.*$/PasswordAuthentication no/;s/^.*ChallengeResponseAuthentication.*$/ChallengeResponseAuthentication no/" /etc/ssh/sshd_config
-
-# Install Cloud9 and noVNC (without administrator privileges).
-USER user
-WORKDIR /home/user
-RUN curl -L https://raw.githubusercontent.com/c9/install/master/install.sh | bash
-RUN git clone https://github.com/kanaka/noVNC /home/user/novnc/
-USER root
-
-# Configure Supervisor.
-WORKDIR /etc
-ADD https://raw.githubusercontent.com/rcatolino/kdesrcbuild-docker/master/supervisord.conf supervisord.conf
-RUN chown root:root supervisord.conf
-
-USER root
-# Generate utf8 locale
-RUN apt-get update -q && apt-get install -qy locales
-RUN touch /etc/locale-gen
-RUN sed -i "s/#.*\(en_US.UTF-8 UTF-8\)/\1/" /etc/locale.gen
-RUN /usr/sbin/locale-gen
-USER user
-
 # Expose the remote access ports and run the server.
 EXPOSE 22 8088
 CMD [ "/usr/bin/supervisord", "-c", "/etc/supervisord.conf" ]
