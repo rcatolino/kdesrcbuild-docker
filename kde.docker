@@ -154,7 +154,7 @@ RUN apt-get update -q \
 
 # Configure Supervisor.
 ADD https://raw.githubusercontent.com/rcatolino/kdesrcbuild-docker/master/supervisord.conf /etc/supervisord.conf
-RUN chown root:root supervisord.conf
+RUN chown root:root /etc/supervisord.conf
 
 # Disallow password logins in openssh
 RUN sed -i "s/^[#\s]*PasswordAuthentication[\s]*[yYnN].*$/PasswordAuthentication no/;s/^[#\s]*ChallengeResponseAuthentication[\s]*[yYnN].*$/ChallengeResponseAuthentication no/" /etc/ssh/sshd_config
