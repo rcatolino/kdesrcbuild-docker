@@ -3,21 +3,24 @@
 # http://kdesrc-build.kde.org/documentation/
 global
 
-  qtdir /usr
-  source-dir /home/user/work/source
-  build-dir /home/user/work/build
-  kdedir /home/user/work/install
+  branch-group kf5-qt5
 
-  git-repository-base kde-projects kde:
-
-  # KDE4_BUILD_TESTS kept for now, for old kde4_add_unit_test stuff to be enabled
-  cmake-options -DBUILD_TESTING=TRUE -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_LIBDIR=lib -DLIB_SUFFIX=64 -DCMAKE_BUILD_TYPE:STRING=debug -DKDE4_BUILD_TESTS=true
-  cxxflags -pipe -std=c++11 -DQT_STRICT_ITERATORS -DQURL_NO_CAST_FROM_STRING -DQT_NO_HTTP -DQT_NO_FTP -Wformat -Werror=format-security -Werror=return-type -Wno-variadic-macros -Wlogical-op -Wmissing-include-dirs
-  make-options -j4
   #install-session-driver true
   #stop-on-failure true
+  # The path to your Qt installation.
+  qtdir /usr # If system Qt
 
-  branch-group kf5-qt5
+  # Install directory for KDE software
+  kdedir ~/kde-latest
+
+  # Directory for downloaded source code
+  source-dir ~/kdesrc
+
+  # Directory to build KDE into before installing
+  # relative to source-dir by default
+  build-dir build     # ~/kdesrc/build
+
+  make-options -j4
 end global
 
 # Instead of specifying modules here, the current best practice is to refer to
@@ -31,7 +34,7 @@ end global
 
 include /home/user/kdesrc-build/kf5-frameworks-build-include
 include /home/user/kdesrc-build/kf5-workspace-build-include
-#include /home/user/kdesrc-build/kf5-applications-build-include
+include /home/user/kdesrc-build/kf5-applications-build-include
 #include /home/user/kdesrc-build/kf5-kdepim-build-include
 
 options plasma-desktop
