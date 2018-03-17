@@ -8,17 +8,13 @@ global
   #install-session-driver true
   #stop-on-failure true
   # The path to your Qt installation.
-  qtdir /usr # If system Qt
+  qtdir /opt/qt59 # If system Qt
 
   # Install directory for KDE software
-  kdedir ~/kde-latest
+  kdedir ~/usr
 
   # Directory for downloaded source code
-  source-dir ~/kdesrc
-
-  # Directory to build KDE into before installing
-  # relative to source-dir by default
-  build-dir build     # ~/kdesrc/build
+  source-dir ~/src
 
   make-options -j4
 end global
