@@ -5,12 +5,17 @@ ENV SHELL /bin/bash
 WORKDIR /home/user
 
 USER root
-RUN sed -i "s/^# deb-src /deb-src /" /etc/apt/sources.list
+RUN echo "deb http://archive.neon.kde.org/dev/stable xenial main" \
+  > /etc/apt/sources.list.d/neon.list
+RUN echo "deb-src http://archive.neon.kde.org/dev/stable xenial main" \
+  >> /etc/apt/sources.list.d/neon.list
+ADD https://archive.neon.kde.org/public.key /tmp/public.key
+RUN apt-key add /tmp/public.key
+
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y -q \
   bison \
   bzr \
   cmake \
-  dialog \
   doxygen \
   extra-cmake-modules \
   flex \
@@ -22,7 +27,6 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y -q \
   libboost-dev \
   libbz2-dev \
   libclang-3.6-dev \
-  libclang-dev \
   libegl1-mesa-dev \
   libepoxy-dev \
   libgcrypt20-dev \
@@ -31,37 +35,43 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y -q \
   libgstreamer-plugins-base1.0-dev \
   libgtk-3-dev \
   libjson-perl \
-  "libkf5.*-dev" \
   liblmdb-dev \
+  libnm-dev \
   libnm-glib-dev \
   libnm-util-dev \
   libpolkit-agent-1-dev \
   libpwquality-dev \
+  libqrencode-dev \
   libqt5x11extras5-dev \
+  libqt5svg5-dev \
+  libqt5webkit5-dev \
+  libqt5xmlpatterns5-dev \
+  libudev-dev \
   libvlccore-dev \
   libvlc-dev \
   libwww-perl \
   libxapian-dev \
-  "libxcb-*-dev" \
   libxcb-keysyms1-dev \
   libxcb-xkb-dev \
   libxml2-dev \
   libxml-parser-perl \
+  libxrender-dev \
   libxslt-dev \
+  libyaml-libyaml-perl \
   llvm \
   llvm-3.6 \
   modemmanager-dev \
   network-manager-dev \
   oxygen-icon-theme \
+  pkg-config \
+  qtbase5-private-dev \
+  qtdeclarative5-dev \
+  qtquickcontrols2-5-dev \
+  qtscript5-dev \
+  qttools5-dev \
   shared-mime-info \
   xserver-xorg-input-synaptics-dev \
   xsltproc
-
-# various utilities
-RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y -q \
-  qdbus-qt5 \
-  xserver-xorg-dev \
-  x11-xserver-utils
 
 ADD var.env ./var.env
 RUN chown user:user var.env
@@ -70,13 +80,6 @@ RUN echo 'source /home/user/var.env' >> .bashrc
 ADD kdesrc-buildrc ./.kdesrc-buildrc
 RUN chown user:user .kdesrc-buildrc
 
-RUN echo "deb http://ppa.launchpad.net/beineri/opt-qt591-xenial/ubuntu xenial main" > /etc/apt/sources.list.d/qt.list
-RUN echo "deb-src http://ppa.launchpad.net/beineri/opt-qt591-xenial/ubuntu xenial main" >> /etc/apt/sources.list.d/qt.list \
- && apt-key adv --keyserver keyserver.ubuntu.com --recv-keys C65D51784EDC19A871DBDBB710C56D0DE9977759
-
-RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y -q \
-  libyaml-libyaml-perl \
-  qt59-meta-minimal
 USER user
 
 # kde anongit url alias
@@ -85,6 +88,7 @@ RUN git config --global url."git://anongit.kde.org/".insteadOf kde: && \
     git clone kde:kdesrc-build
 
 RUN mkdir /home/user/usr
+RUN mkdir /home/user/src
 RUN mkdir /home/user/usr/bin
 RUN ln -s /home/user/kdesrc-build/kdesrc-build /home/user/usr/bin/
 WORKDIR /home/user/kdesrc-build/
@@ -105,20 +109,5 @@ ENV SASL_PATH=/usr/lib/sasl2:$KF5/lib/sasl2
 # Pull the source
 RUN ./kdesrc-build --metadata-only frameworks
 RUN ./kdesrc-build --src-only frameworks
-USER root
-RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y -q \
-  libudev-dev \
-  libphonon4qt5-dev \
-  libphonon4qt5experimental-dev \
-  libqrencode-dev \
-  libwayland-dev \
-  libnm-dev \
-  libqt5webkit5-dev \
-  qt59quickcontrols2 \
-  qt59script \
-  qt59svg \
-  qt59tools \
-  qt59x11extras
-USER user
-RUN ./kdesrc-build --build-only frameworks
+RUN ./kdesrc-build --include-dependencies frameworks || true
 
