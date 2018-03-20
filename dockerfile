@@ -73,6 +73,81 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y -q \
   xserver-xorg-input-synaptics-dev \
   xsltproc
 
+# Typical KDE development tools if you want to work *in* the container.
+RUN DEBIAN_FRONTEND=noninteractive apt-get install -y -q \
+  cppcheck \
+  kate \
+  konsole
+# Install KDE frameworks-development, so you can work on applications immediately
+RUN DEBIAN_FRONTEND=noninteractive apt-get install -y -q \
+	libkf5activities-dev \
+	libkf5activitiesstats-dev \
+	libkf5archive-dev \
+	libkf5attica-dev \
+	libkf5auth-bin-dev \
+	libkf5auth-dev \
+	libkf5baloowidgets-dev \
+	libkf5bookmarks-dev \
+	libkf5cddb-dev \
+	libkf5codecs-dev \
+	libkf5compactdisc-dev \
+	libkf5completion-dev \
+	libkf5config-dev \
+	libkf5configwidgets-dev \
+	libkf5coreaddons-dev \
+	libkf5crash-dev \
+	libkf5dbusaddons-dev \
+	libkf5declarative-dev \
+	libkf5dnssd-dev \
+	libkf5doctools-dev \
+	libkf5emoticons-dev \
+	libkf5filemetadata-dev \
+	libkf5globalaccel-dev \
+	libkf5grantleetheme-dev \
+	libkf5gravatar-dev \
+	libkf5guiaddons-dev \
+	libkf5i18n-dev \
+	libkf5iconthemes-dev \
+	libkf5idletime-dev \
+	libkf5itemmodels-dev \
+	libkf5itemviews-dev \
+	libkf5jobwidgets-dev \
+	libkf5jsembed-dev \
+	libkf5kcmutils-dev \
+	libkf5kio-dev \
+	libkf5kjs-dev \
+	libkf5networkmanagerqt-dev \
+	libkf5newstuff-dev \
+	libkf5notifications-dev \
+	libkf5notifyconfig-dev \
+	libkf5package-dev \
+	libkf5parts-dev \
+	libkf5plasma-dev \
+	libkf5prison-dev \
+	libkf5pty-dev \
+	libkf5purpose-dev \
+	libkf5runner-dev \
+	libkf5screen-dev \
+	libkf5service-dev \
+	libkf5solid-dev \
+	libkf5sonnet-dev \
+	libkf5style-dev \
+	libkf5su-dev \
+	libkf5syntaxhighlighting-dev \
+	libkf5sysguard-dev \
+	libkf5texteditor-dev \
+	libkf5textwidgets-dev \
+	libkf5threadweaver-dev \
+	libkf5unitconversion-dev \
+	libkf5wallet-dev \
+	libkf5wayland-dev \
+	libkf5webkit-dev \
+	libkf5widgetsaddons-dev \
+	libkf5windowsystem-dev \
+	libkf5xmlgui-dev \
+	libkf5xmlrpcclient-dev \
+	libphonon4qt5-dev
+
 ADD var.env ./var.env
 RUN chown user:user var.env
 # Better in .pam_environment maybe ?
@@ -86,6 +161,11 @@ USER user
 RUN git config --global url."git://anongit.kde.org/".insteadOf kde: && \
     git config --global url."ssh://git@git.kde.org/".pushInsteadOf kde: && \
     git clone kde:kdesrc-build
+
+# Configure konsole to not be horribly ugly
+RUN mkdir -p /home/user/.config /home/user/.local/share/konsole
+ADD konsolerc ./.config/konsolerc
+ADD konsole.Default.profile .local/share/konsole/Default.profile
 
 RUN mkdir /home/user/usr
 RUN mkdir /home/user/src
@@ -109,5 +189,11 @@ ENV SASL_PATH=/usr/lib/sasl2:$KF5/lib/sasl2
 # Pull the source
 RUN ./kdesrc-build --metadata-only frameworks
 RUN ./kdesrc-build --src-only frameworks
-RUN ./kdesrc-build --include-dependencies frameworks || true
+RUN ./kdesrc-build --metadata-only workspace
+RUN ./kdesrc-build --src-only workspace
+# "Selected" applications ready as well
+RUN ./kdesrc-build --src-only konversation okular
+
+# Don't actually build, though
+# RUN ./kdesrc-build --include-dependencies frameworks || true
 
