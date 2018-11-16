@@ -1,4 +1,4 @@
-FROM janx/ubuntu-dev
+FROM janitortechnology/ubuntu-dev
 MAINTAINER Raphael Catolino "raphael.catolino@gmail.com"
 
 ENV SHELL /bin/bash
